@@ -1,6 +1,6 @@
 "use client"
 
-import { Sun, PanelLeft, X, Play } from "lucide-react"
+import { Sun, PanelLeft, X, Play, Pause } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 
 export default function HomePage() {
@@ -12,6 +12,8 @@ export default function HomePage() {
   const [scrollY, setScrollY] = useState(0)
   const [videoPlaying, setVideoPlaying] = useState(false)
   const [selectedService, setSelectedService] = useState<any>(null)
+  const [cartItems, setCartItems] = useState<any[]>([])
+  const [showCart, setShowCart] = useState(false)
   const mainRef = useRef<HTMLDivElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
@@ -191,7 +193,7 @@ export default function HomePage() {
   return (
     <div className="flex flex-col min-h-screen bg-white text-gray-800 font-mono scroll-smooth">
       {/* Header */}
-      <header className="sticky top-0 border-b border-gray-200 bg-white h-12 flex items-center justify-between px-4 z-50">
+      <header className="sticky top-0 border-b border-gray-200 bg-white h-12 flex items-center justify-between px-4 z-50 relative">
         <div className="flex items-center space-x-4">
           {sidebarOpen && (
             <div className="flex items-center space-x-2">
@@ -214,6 +216,16 @@ export default function HomePage() {
                 }`}
               >
                 <span>Contact</span>
+              </button>
+              <button 
+                onClick={() => setActiveTab("cart")}
+                className={`text-sm px-2 py-1 rounded flex items-center space-x-2 ${
+                  activeTab === "cart" 
+                    ? "text-gray-800 bg-gray-100" 
+                    : "text-gray-500 hover:text-gray-600"
+                }`}
+              >
+                <span>Cart</span>
               </button>
               <button 
                 onClick={() => setSidebarOpen(false)}
@@ -255,17 +267,33 @@ export default function HomePage() {
         </div>
         <div className="flex items-center space-x-2">
           <button 
-            onClick={() => setVideoPlaying(!videoPlaying)}
+            onClick={() => {
+              console.log('Video button clicked, current state:', videoPlaying)
+              setVideoPlaying(!videoPlaying)
+            }}
             className="p-2 hover:bg-gray-100 rounded-full transition-all duration-200 hover:scale-110 group"
-            title="Play Video"
+            title={videoPlaying ? "Pause Video" : "Play Video"}
           >
-            <Play className="h-4 w-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
+            {videoPlaying ? (
+              <Pause className="h-4 w-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
+            ) : (
+              <Play className="h-4 w-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
+            )}
           </button>
           <button className="p-1 hover:bg-gray-100 rounded">
             <Sun className="h-4 w-4 text-gray-400" />
           </button>
           <button 
-            onClick={() => setSidebarOpen(!sidebarOpen)}
+            onClick={() => {
+              console.log('Sidebar button clicked, current state:', sidebarOpen)
+              const newState = !sidebarOpen
+              console.log('Setting sidebar to:', newState)
+              setSidebarOpen(newState)
+              // Force a re-render check
+              setTimeout(() => {
+                console.log('Sidebar state after update:', sidebarOpen)
+              }, 100)
+            }}
             className={`p-1 rounded transition-all duration-200 ${
               sidebarOpen 
                 ? 'bg-gray-200 text-gray-700' 
@@ -274,19 +302,43 @@ export default function HomePage() {
             title={sidebarOpen ? "Close sidebar" : "Open sidebar"}
           >
             <PanelLeft className="h-4 w-4" />
+            {/* Debug indicator */}
+            <span className="relative -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center pointer-events-none">
+              {sidebarOpen ? 'O' : 'C'}
+            </span>
           </button>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1" ref={mainRef}>
-        {/* Main Content Area - Slides with sidebar */}
-        <div className={`transition-all duration-500 ease-in-out ${sidebarOpen ? 'ml-96' : 'ml-0'}`}>
-          {/* Header slides with content */}
-          <div className={`transition-all duration-500 ease-in-out ${sidebarOpen ? 'ml-0' : 'ml-0'}`}>
-            {/* Sidebar */}
-            {sidebarOpen && (
-              <div className="fixed left-0 top-12 w-96 h-[calc(100vh-48px)] bg-gray-50 border-r border-gray-200 z-40 shadow-2xl">
+      {/* Background Video - Plays behind the hero section */}
+      {videoPlaying && (
+        <div className="fixed inset-0 z-30">
+          {/* Video Background */}
+          <iframe
+            src="https://www.youtube.com/embed/q3C_nN-jS1Y?autoplay=1&mute=1&loop=1&playlist=q3C_nN-jS1Y&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1"
+            className="w-full h-full"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            title="Background Video"
+          />
+          
+          {/* Close Button */}
+          <button
+            onClick={() => setVideoPlaying(false)}
+            className="absolute top-4 right-4 z-50 bg-black bg-opacity-50 hover:bg-opacity-70 rounded-full p-3 transition-all duration-200 hover:scale-100"
+          >
+            <X className="h-6 w-6 text-white" />
+          </button>
+          
+          {/* Dark Overlay for Better Text Readability */}
+          <div className="absolute inset-0 bg-black bg-opacity-30" />
+        </div>
+      )}
+
+      {/* Sidebar - Fixed position, doesn't move with content */}
+      {sidebarOpen && (
+        <div className="fixed left-0 top-12 w-96 h-[calc(100vh-48px)] bg-gray-50 border-r border-gray-200 z-40 shadow-2xl">
                 <div className="h-full flex flex-col">
                   {/* Header with close button */}
                   <div className="p-4 border-b border-gray-200 bg-gray-100">
@@ -372,9 +424,9 @@ export default function HomePage() {
                               <div className="text-gray-400">{"  <h3>CONTACT INFO</h3>"}</div>
                               <div className="h-6"></div>
                               <div className="text-gray-400">{"  <p>"}</div>
-                              <div className="text-gray-800">Email: info@gpw-wellness.com</div>
+                              <div className="text-gray-800">Email: info@godspurposewellness.com</div>
                               <div className="text-gray-800">Phone: (555) 123-4567</div>
-                              <div className="text-gray-800">Address: 123 Fitness St, City, State</div>
+                              <div className="text-gray-800">Address: 123 Fitness St, Chattanooga, TN</div>
                               <div className="h-6"></div>
                               <div className="text-gray-400">{"  </p>"}</div>
                               <div className="text-gray-400">{"</section>"}</div>
@@ -425,53 +477,139 @@ export default function HomePage() {
                       </div>
                     )}
                     
-                    {activeTab === "blog-details" && (
-                      <div className="p-6">
-                        <div className="flex">
-                          {/* Line Numbers */}
-                          <div className="text-xs text-gray-400 mr-6 select-none">
-                            {Array.from({ length: 30 }, (_, i) => (
-                              <div key={i + 1} className="h-6 leading-6">
-                                {i + 1}
-                              </div>
-                            ))}
-                          </div>
-                          
-                          {/* Blog Details Content */}
-                          <div className="flex-1">
-                            <div className="space-y-1">
-                              <div className="text-gray-400">{"<!-- start blog-details -->"}</div>
-                              <div className="h-6"></div>
-                              <div className="text-gray-400">{"<section class=\"blog-details\">"}</div>
-                              <div className="h-6"></div>
-                              <div className="text-gray-400">{"  <h3>BLOG CONTENT</h3>"}</div>
-                              <div className="h-6"></div>
-                              <div className="text-gray-400">{"  <p>"}</div>
-                              <div className="text-gray-800">Explore our latest fitness insights,</div>
-                              <div className="text-gray-800">workout tips, and wellness advice.</div>
-                              <div className="h-6"></div>
-                              <div className="text-gray-400">{"  </p>"}</div>
-                              <div className="h-6"></div>
-                              <div className="text-gray-400">{"  <div class=\"articles\">"}</div>
-                              <div className="text-gray-800">New articles published weekly</div>
-                              <div className="text-gray-800">Expert advice from certified trainers</div>
-                              <div className="text-gray-400">{"  </div>"}</div>
-                              <div className="h-6"></div>
-                              <div className="text-gray-400">{"</section>"}</div>
-                              <div className="h-6"></div>
-                              <div className="text-gray-400">{"<!-- end blog-details -->"}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                                         {activeTab === "blog-details" && (
+                       <div className="p-6">
+                         <div className="flex">
+                           {/* Line Numbers */}
+                           <div className="text-xs text-gray-400 mr-6 select-none">
+                             {Array.from({ length: 30 }, (_, i) => (
+                               <div key={i + 1} className="h-6 leading-6">
+                                 {i + 1}
+                               </div>
+                             ))}
+                           </div>
+                           
+                           {/* Blog Details Content */}
+                           <div className="flex-1">
+                             <div className="space-y-1">
+                               <div className="text-gray-400">{"<!-- start blog-details -->"}</div>
+                               <div className="h-6"></div>
+                               <div className="text-gray-400">{"<section class=\"blog-details\">"}</div>
+                               <div className="h-6"></div>
+                               <div className="text-gray-400">{"  <h3>BLOG CONTENT</h3>"}</div>
+                               <div className="h-6"></div>
+                               <div className="text-gray-400">{"  <p>"}</div>
+                               <div className="text-gray-800">Explore our latest fitness insights,</div>
+                               <div className="text-gray-800">workout tips, and wellness advice.</div>
+                               <div className="h-6"></div>
+                               <div className="text-gray-400">{"  </p>"}</div>
+                               <div className="h-6"></div>
+                               <div className="text-gray-400">{"  <div class=\"articles\">"}</div>
+                               <div className="text-gray-800">New articles published weekly</div>
+                               <div className="text-gray-800">Expert advice from certified trainers</div>
+                               <div className="h-6"></div>
+                               <div className="text-gray-400">{"  </div>"}</div>
+                               <div className="h-6"></div>
+                               <div className="text-gray-400">{"</section>"}</div>
+                               <div className="h-6"></div>
+                               <div className="text-gray-400">{"<!-- end blog-details -->"}</div>
+                             </div>
+                           </div>
+                         </div>
+                       </div>
+                     )}
+                     
+                     {activeTab === "cart" && (
+                       <div className="p-6">
+                         <div className="flex">
+                           {/* Line Numbers */}
+                           <div className="text-xs text-gray-400 mr-6 select-none">
+                             {Array.from({ length: 25 }, (_, i) => (
+                               <div key={i + 1} className="h-6 leading-6">
+                                 {i + 1}
+                               </div>
+                             ))}
+                           </div>
+                           
+                           {/* Cart Content */}
+                           <div className="flex-1">
+                             <div className="space-y-1">
+                               <div className="text-gray-400">{"<!-- start cart -->"}</div>
+                               <div className="h-6"></div>
+                               <div className="text-gray-400">{"<section class=\"cart\">"}</div>
+                               <div className="h-6"></div>
+                               <div className="text-gray-400">{"  <h3>SHOPPING CART</h3>"}</div>
+                               <div className="h-6"></div>
+                               <div className="text-gray-400">{"  <div class=\"cart-items\">"}</div>
+                               {selectedService ? (
+                                 <>
+                                   <div className="text-gray-800">{selectedService.name}</div>
+                                   <div className="text-gray-600">{selectedService.description}</div>
+                                   <div className="text-gray-800 font-semibold">{selectedService.price}</div>
+                                 </>
+                               ) : (
+                                 <div className="text-gray-600">No items in cart</div>
+                               )}
+                               <div className="text-gray-400">{"  </div>"}</div>
+                               <div className="h-6"></div>
+                               <div className="text-gray-400">{"</section>"}</div>
+                               <div className="h-6"></div>
+                               <div className="text-gray-400">{"<!-- end cart -->"}</div>
+                             </div>
+                           </div>
+                         </div>
+                         
+                         {/* Animated Cart Window */}
+                         {showCart && selectedService && (
+                           <div className="fixed bottom-0 left-0 w-96 bg-white border-t border-gray-200 shadow-2xl transform translate-y-0 transition-transform duration-500 ease-out z-50">
+                             <div className="p-4">
+                               <div className="flex items-center justify-between mb-4">
+                                 <h3 className="text-lg font-semibold text-gray-800">Cart</h3>
+                                 <button
+                                   onClick={() => setShowCart(false)}
+                                   className="text-gray-400 hover:text-gray-600"
+                                 >
+                                   <X className="h-4 w-4" />
+                                 </button>
+                               </div>
+                               
+                               <div className="space-y-3 mb-4">
+                                 <div className="flex justify-between items-center">
+                                   <span className="text-gray-800">{selectedService.name}</span>
+                                   <span className="text-gray-600">{selectedService.price}</span>
+                                 </div>
+                                 <div className="text-sm text-gray-600">{selectedService.description}</div>
+                               </div>
+                               
+                               <div className="border-t border-gray-200 pt-4">
+                                 <div className="flex justify-between items-center mb-4">
+                                   <span className="text-lg font-semibold text-gray-800">Total:</span>
+                                   <span className="text-lg font-semibold text-gray-800">{selectedService.price}</span>
+                                 </div>
+                                 <button className="w-full bg-gray-800 text-white py-3 px-4 rounded-lg hover:bg-gray-700 transition-colors duration-200">
+                                   Checkout
+                                 </button>
+                               </div>
+                             </div>
+                           </div>
+                         )}
+                       </div>
+                     )}
                   </div>
                 </div>
               </div>
             )}
            </div>
-           
-           {activePage === "gpw-wellness.js" ? (
+         </div>
+       </div>
+     )}
+
+     {/* Main Content */}
+     <main className="flex-1" ref={mainRef}>
+       {/* Main Content Area - Slides with sidebar */}
+       <div className={`transition-all duration-500 ease-in-out ${sidebarOpen ? 'ml-96' : 'ml-0'}`}>
+         
+         {activePage === "gpw-wellness.js" ? (
             <>
               {/* Scroll Container with Snap */}
               <div 
@@ -480,35 +618,7 @@ export default function HomePage() {
                 style={{ scrollSnapType: 'y mandatory' }}
               >
                 {/* Section 1 - Hero Card */}
-                <section className="h-screen flex p-6 pt-20 snap-start relative">
-                  {/* Video Overlay */}
-                  {videoPlaying && (
-                    <div className="absolute inset-0 bg-black bg-opacity-95 z-50 flex items-center justify-center p-8 animate-in fade-in duration-300">
-                      <div className="relative w-full h-full max-w-5xl max-h-[80vh] bg-gray-900 rounded-xl overflow-hidden shadow-2xl">
-                        <button
-                          onClick={() => setVideoPlaying(false)}
-                          className="absolute top-4 right-4 z-10 bg-black bg-opacity-50 hover:bg-opacity-70 rounded-full p-3 transition-all duration-200 hover:scale-110"
-                        >
-                          <X className="h-6 w-6 text-white" />
-                        </button>
-                        <div className="w-full h-full flex items-center justify-center">
-                          <video
-                            className="w-full h-full object-contain"
-                            controls
-                            autoPlay
-                            muted
-                            onError={(e) => console.log('Video error:', e)}
-                          >
-                            <source src="/placeholder-video.mp4" type="video/mp4" />
-                            <source src="/placeholder-video.webm" type="video/webm" />
-                            <div className="flex items-center justify-center h-full text-white text-lg">
-                              Video not available. Please add a video file to /public/placeholder-video.mp4
-                            </div>
-                          </video>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                <section className="h-screen flex p-6 pt-20 snap-start relative z-50">
                   {/* Left Section - Code Editor */}
                   <div className="flex-1">
                     <div className="flex">
@@ -519,15 +629,79 @@ export default function HomePage() {
                       <div className="flex-1">
                         <div className="space-y-1">
                           <div className="h-6"></div>
-                          <div className="h-6"></div>
-                          <div className="h-6"></div>
-                          <div className="text-2xl font-light text-gray-800" style={{ fontFamily: 'neue-haas-grotesk-display, sans-serif' }}>We are</div>
-                          <div className="text-2xl font-light text-gray-800" style={{ fontFamily: 'neue-haas-grotesk-display, sans-serif' }}>your personal</div>
-                          <div className="text-2xl font-light text-gray-800" style={{ fontFamily: 'neue-haas-grotesk-display, sans-serif' }}>trainers</div>
-                          <div className="text-gray-400">===</div>
-                          <div className="h-6"></div>
-                          <div className="text-2xl font-light text-gray-800" style={{ fontFamily: 'neue-haas-grotesk-display, sans-serif' }}>& wellness</div>
-                          <div className="text-2xl font-light text-gray-800" style={{ fontFamily: 'neue-haas-grotesk-display, sans-serif' }}>partners</div>
+                                                 <div className="h-6"></div>
+                       <div className="h-6"></div>
+                       <div className="space-y-2">
+                         {/* Service Item 1 */}
+                         <div className="group relative">
+                           <div 
+                             onClick={() => {
+                               setSelectedService({ name: "Personal Training", price: "$75/session", description: "One-on-one or group fitness coaching" })
+                               setActiveTab("cart")
+                               setSidebarOpen(true)
+                               setShowCart(true)
+                             }}
+                             className="text-lg font-light text-gray-800 hover:text-gray-900 cursor-pointer transition-all duration-300 flex items-center space-x-2" 
+                             style={{ fontFamily: 'neue-haas-grotesk-display, sans-serif' }}
+                           >
+                             <span>1. Personal Training</span>
+                             <span className="text-gray-400 group-hover:text-gray-600 transition-colors">→</span>
+                           </div>
+                           <div className="overflow-hidden transition-all duration-500 ease-out group-hover:max-h-20 max-h-0">
+                             <div className="text-sm text-gray-600 ml-4 mt-1 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out">
+                               — One-on-one or group fitness coaching.
+                             </div>
+                           </div>
+                         </div>
+
+                         {/* Service Item 2 */}
+                         <div className="group relative">
+                           <div className="text-lg font-light text-gray-800 hover:text-gray-900 cursor-pointer transition-all duration-300 group-hover:text-gray-900" style={{ fontFamily: 'neue-haas-grotesk-display, sans-serif' }}>
+                             2. Wellness Coaching
+                           </div>
+                           <div className="overflow-hidden transition-all duration-500 ease-out group-hover:max-h-20 max-h-0">
+                             <div className="text-sm text-gray-600 ml-4 mt-1 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out">
+                               — Lifestyle, nutrition, and health guidance.
+                             </div>
+                           </div>
+                         </div>
+
+                         {/* Service Item 3 */}
+                         <div className="group relative">
+                           <div className="text-lg font-light text-gray-800 hover:text-gray-900 cursor-pointer transition-all duration-300 group-hover:text-gray-900" style={{ fontFamily: 'neue-haas-grotesk-display, sans-serif' }}>
+                             3. Meal Prep & Delivery
+                           </div>
+                           <div className="overflow-hidden transition-all duration-500 ease-out group-hover:max-h-20 max-h-0">
+                             <div className="text-sm text-gray-600 ml-4 mt-1 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out">
+                               — Healthy, ready-to-eat meals.
+                             </div>
+                           </div>
+                         </div>
+
+                         {/* Service Item 4 */}
+                         <div className="group relative">
+                           <div className="text-lg font-light text-gray-800 hover:text-gray-900 cursor-pointer transition-all duration-300 group-hover:text-gray-900" style={{ fontFamily: 'neue-haas-grotesk-display, sans-serif' }}>
+                             4. Merchandise
+                           </div>
+                           <div className="overflow-hidden transition-all duration-500 ease-out group-hover:max-h-20 max-h-0">
+                             <div className="text-sm text-gray-600 ml-4 mt-1 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out">
+                               — Apparel, gear, and wellness products.
+                             </div>
+                           </div>
+                         </div>
+
+                         {/* Service Item 5 */}
+                         <div className="group relative">
+                           <div className="text-lg font-light text-gray-800 hover:text-gray-900 cursor-pointer transition-all duration-300 group-hover:text-gray-900" style={{ fontFamily: 'neue-haas-grotesk-display, sans-serif' }}>
+                             5. Community & Blog
+                           </div>
+                           <div className="overflow-hidden transition-all duration-500 ease-out group-hover:max-h-20 max-h-0">
+                             <div className="text-sm text-gray-600 ml-4 mt-1 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out">
+                               — Tips, stories, and inspiration.
+                             </div>
+                           </div>
+                         </div>
+                       </div>
                           <div className="text-gray-400">===</div>
                           <div className="h-6"></div>
                           <div className="text-gray-400">/</div>
@@ -691,15 +865,15 @@ export default function HomePage() {
                   </div>
                 </section>
 
-                {/* Section 3 - Services Card */}
-                <section className="h-screen flex p-6 snap-start">
-                  <div className="flex w-full">
-                    {/* Line Numbers */}
-                    <ContinuousLineNumbers startLine={106} count={58} scrollOffset={scrollY} />
-                    
-                    {/* Services Content */}
-                    <div className="flex-1">
-                      <div className="space-y-1 pt-20">
+                                 {/* Section 3 - Services Card */}
+                 <section className="h-screen flex p-6 snap-start">
+                   <div className="flex w-full">
+                     {/* Line Numbers */}
+                     <ContinuousLineNumbers startLine={106} count={58} scrollOffset={scrollY} />
+                     
+                     {/* Services Content */}
+                     <div className="flex-1">
+                       <div className="space-y-1 pt-8">
                         <div className="h-6"></div>
                         <div className="h-6"></div>
                         <div className="h-6"></div>
