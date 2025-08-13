@@ -1,57 +1,42 @@
-import { NextResponse } from 'next/server'
-import stripe from '@/lib/stripe'
+import { NextRequest, NextResponse } from 'next/server'
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { type, items, success_url, cancel_url } = body
+    const { items } = await request.json()
 
-    let lineItems = []
+    // TODO: Install and configure Stripe
+    // import Stripe from 'stripe'
+    // const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    //   apiVersion: '2024-12-18.acacia',
+    // })
 
-    if (type === 'training') {
-      // For training sessions
-      lineItems.push({
-        price_data: {
-          currency: 'usd',
-          product_data: {
-            name: 'Personal Training Session',
-            description: 'One-on-one training session with certified trainer',
-          },
-          unit_amount: 7500, // $75.00 in cents
-        },
-        quantity: 1,
-      })
-    } else if (type === 'product') {
-      // For meals and merchandise
-      lineItems = items.map((item: any) => ({
-        price_data: {
-          currency: 'usd',
-          product_data: {
-            name: item.name,
-            description: item.description,
-            images: item.image_url ? [item.image_url] : [],
-          },
-          unit_amount: Math.round(item.price * 100), // Convert to cents
-        },
-        quantity: item.quantity || 1,
-      }))
-    }
+    // const session = await stripe.checkout.sessions.create({
+    //   payment_method_types: ['card'],
+    //   line_items: items.map((item: any) => ({
+    //     price_data: {
+    //       currency: 'usd',
+    //       product_data: {
+    //         name: item.name,
+    //         description: item.description,
+    //       },
+    //       unit_amount: parseInt(item.price.replace(/\D/g, '')) * 100, // Convert to cents
+    //     },
+    //     quantity: 1,
+    //   })),
+    //   mode: 'payment',
+    //   success_url: `${request.headers.get('origin')}/success?session_id={CHECKOUT_SESSION_ID}`,
+    //   cancel_url: `${request.headers.get('origin')}/cancel`,
+    // })
 
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: lineItems,
-      mode: 'payment',
-      success_url: success_url || `${process.env.NEXT_PUBLIC_BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: cancel_url || `${process.env.NEXT_PUBLIC_BASE_URL}/cancel`,
-      metadata: {
-        type,
-        items: JSON.stringify(items),
-      },
-    })
+    // For now, return a mock session ID
+    const mockSessionId = 'cs_mock_' + Date.now()
 
-    return NextResponse.json({ sessionId: session.id })
+    return NextResponse.json({ sessionId: mockSessionId })
   } catch (error) {
-    console.error('Stripe checkout error:', error)
-    return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 })
+    console.error('Error creating checkout session:', error)
+    return NextResponse.json(
+      { error: 'Failed to create checkout session' },
+      { status: 500 }
+    )
   }
 } 
