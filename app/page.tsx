@@ -213,14 +213,29 @@ export default function HomePage() {
       )}
 
       {/* Header */}
-      <div className={`transition-all duration-500 ease-in-out ${sidebarOpen ? 'ml-96' : 'ml-0'}`}>
+      <div className={`transition-all duration-500 ease-in-out ${sidebarOpen ? 'ml-80 md:ml-96' : 'ml-0'}`}>
         <header className={`sticky top-0 border-b border-gray-200 h-12 flex items-center justify-between px-4 z-50 relative transition-all duration-500 ease-in-out ${
           videoPlaying ? 'bg-white/20 backdrop-blur-sm border-gray-200/20' : 'bg-white'
         }`}>
           <div className="flex items-center space-x-4">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className={`p-2 rounded transition-all duration-200 relative ${
+              className={`p-2 rounded transition-all duration-200 relative md:hidden ${
+                sidebarOpen ? 'bg-gray-200 text-gray-700' : 'hover:bg-gray-100'
+              }`}
+              title="Toggle Mobile Menu"
+            >
+              <PanelLeft className="h-4 w-4" />
+              {cartCount > 0 && (
+                <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                  {cartCount}
+                </div>
+              )}
+            </button>
+            
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className={`p-2 rounded transition-all duration-200 relative hidden md:block ${
                 sidebarOpen ? 'bg-gray-200 text-gray-700' : 'hover:bg-gray-100'
               }`}
               title="Toggle Sidebar"
@@ -286,12 +301,22 @@ export default function HomePage() {
       </div>
 
       {/* Sidebar */}
-      <div className={`fixed left-0 top-12 h-[calc(100vh-3rem)] w-96 bg-white border-r border-gray-200 transform transition-transform duration-500 ease-in-out z-40 ${
+      <div className={`fixed left-0 top-12 h-[calc(100vh-3rem)] w-80 md:w-96 border-r border-gray-200 transform transition-transform duration-500 ease-in-out z-40 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      } ${
+        videoPlaying ? 'bg-white/20 backdrop-blur-sm border-gray-200/20' : 'bg-white'
       }`}>
-        <div className="p-4">
+        
+        {/* Mobile Overlay */}
+        {sidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+        <div className={`p-4 ${videoPlaying ? 'bg-white/40 backdrop-blur-sm rounded-lg' : ''}`}>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-800">Sidebar</h2>
+            <h2 className={`text-lg font-semibold ${videoPlaying ? 'text-gray-800' : 'text-gray-800'}`}>Sidebar</h2>
             <button
               onClick={() => setSidebarOpen(false)}
               className="p-1 hover:bg-gray-100 rounded"
@@ -466,7 +491,7 @@ export default function HomePage() {
       </div>
 
       {/* Main Content */}
-      <div className={`flex-1 transition-all duration-500 ease-in-out ${sidebarOpen ? 'ml-96' : 'ml-0'}`}>
+      <div className={`flex-1 transition-all duration-500 ease-in-out ${sidebarOpen ? 'ml-80 md:ml-96' : 'ml-0'}`}>
         <main ref={mainRef} className="min-h-screen">
           {activePage === "checkout" ? (
             /* Checkout Page */
@@ -557,21 +582,26 @@ export default function HomePage() {
             /* Main Content - Original Sections */
             <div 
               ref={scrollContainerRef}
-              className="h-screen overflow-y-auto snap-y snap-mandatory"
-              style={{ scrollSnapType: 'y mandatory' }}
+              className="min-h-screen overflow-y-auto"
             >
-            {/* Section 1: Hero */}
-            <section className="h-screen flex p-6 snap-start relative z-50">
-              <div className="flex w-full">
-                {/* Line Numbers */}
-                <ContinuousLineNumbers startLine={1} count={40} scrollOffset={scrollY} />
+              {/* Mobile-Responsive Combined Layout */}
+              <div className={`p-6 ${videoPlaying ? 'bg-white/80 backdrop-blur-sm rounded-lg' : ''}`}>
+                {/* Line Numbers - Hidden on mobile */}
+                <div className="hidden md:block">
+                  <ContinuousLineNumbers startLine={1} count={200} scrollOffset={scrollY} />
+                </div>
                 
-                {/* Hero Content */}
-                <div className="flex-1 flex flex-col justify-center">
+                {/* Combined Content */}
+                <div className="space-y-16 md:space-y-24">
+                  
+                  {/* Hero Section */}
                   <div className="space-y-8">
-                    <div className="space-y-4">
+                    <h1 className="text-4xl md:text-6xl font-light text-gray-800 leading-tight">
+                      God's Purpose Wellness
+                    </h1>
+                    <div className="space-y-6">
                       <div className="group relative">
-                        <div className="text-4xl font-light text-gray-800 hover:text-gray-900 transition-colors cursor-pointer">
+                        <div className="text-2xl md:text-4xl font-light text-gray-800 hover:text-gray-900 transition-colors cursor-pointer">
                           1. Personal Training
                         </div>
                         <div className="overflow-hidden max-h-0 transition-all duration-500 ease-out group-hover:max-h-20">
@@ -582,7 +612,7 @@ export default function HomePage() {
                       </div>
                       
                       <div className="group relative">
-                        <div className="text-4xl font-light text-gray-800 hover:text-gray-900 transition-colors cursor-pointer">
+                        <div className="text-2xl md:text-4xl font-light text-gray-800 hover:text-gray-900 transition-colors cursor-pointer">
                           2. Wellness Coaching
                         </div>
                         <div className="overflow-hidden max-h-0 transition-all duration-500 ease-out group-hover:max-h-20">
@@ -593,7 +623,7 @@ export default function HomePage() {
                       </div>
                       
                       <div className="group relative">
-                        <div className="text-4xl font-light text-gray-800 hover:text-gray-900 transition-colors cursor-pointer">
+                        <div className="text-2xl md:text-4xl font-light text-gray-800 hover:text-gray-900 transition-colors cursor-pointer">
                           3. Meal Prep & Delivery
                         </div>
                         <div className="overflow-hidden max-h-0 transition-all duration-500 ease-out group-hover:max-h-20">
@@ -604,7 +634,7 @@ export default function HomePage() {
                       </div>
                       
                       <div className="group relative">
-                        <div className="text-4xl font-light text-gray-800 hover:text-gray-900 transition-colors cursor-pointer">
+                        <div className="text-2xl md:text-4xl font-light text-gray-800 hover:text-gray-900 transition-colors cursor-pointer">
                           4. Merchandise
                         </div>
                         <div className="overflow-hidden max-h-0 transition-all duration-500 ease-out group-hover:max-h-20">
@@ -616,7 +646,7 @@ export default function HomePage() {
                       
                       <div className="group relative">
                         <div 
-                          className="text-4xl font-light text-gray-800 hover:text-gray-900 transition-colors cursor-pointer flex items-center space-x-2"
+                          className="text-2xl md:text-4xl font-light text-gray-800 hover:text-gray-900 transition-colors cursor-pointer flex items-center space-x-2"
                           onClick={() => {
                             setSelectedService({ name: "Personal Training", price: "$75/session", description: "One-on-one or group fitness coaching" })
                             setActiveTab("cart")
@@ -634,60 +664,31 @@ export default function HomePage() {
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            </section>
 
-            {/* Section 2: About */}
-            <section className="h-screen flex p-6 pt-8 snap-start">
-              <div className="flex w-full">
-                {/* Line Numbers */}
-                <ContinuousLineNumbers startLine={41} count={40} scrollOffset={scrollY} />
-                
-                {/* About Content */}
-                <div className="flex-1">
-                  <div className="space-y-1 pt-20">
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="text-8xl font-light text-gray-800 leading-none">
+                  {/* About Section */}
+                  <div className="space-y-6">
+                    <h2 className="text-3xl md:text-6xl font-light text-gray-800 leading-tight">
                       Transform your life
+                    </h2>
+                    <div className="space-y-4">
+                      <div className="text-xl font-light text-gray-800">ABOUT US</div>
+                      <div className="text-gray-400">========</div>
+                      <div className="text-gray-400">/ MISSION / VISION / VALUES /</div>
+                      <div className="text-gray-800">→ We believe in empowering individuals</div>
+                      <div className="text-gray-800">to achieve their health and wellness goals</div>
+                      <div className="text-gray-800">through personalized guidance and support.</div>
+                      <div className="text-gray-400">+++</div>
+                      <div className="text-gray-400">+++</div>
+                      <div className="text-gray-400">+++</div>
+                      <div className="text-gray-400">===</div>
+                      <div className="text-gray-400">/</div>
+                      <div className="text-gray-400">/</div>
+                      <div className="text-gray-400">/</div>
+                      <div className="text-gray-400">***</div>
+                      <div className="text-gray-400">***</div>
+                      <div className="text-gray-400">***</div>
+                      <div className="text-gray-400">===</div>
                     </div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div> 
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="text-xl font-light text-gray-800">ABOUT US</div>
-                    <div className="text-gray-400">========</div>
-                    <div className="h-6"></div>
-                    <div className="text-gray-400">/ MISSION / VISION / VALUES /</div>
-                    <div className="h-6"></div>
-                    <div className="text-gray-800">→ We believe in empowering individuals</div>
-                    <div className="text-gray-800">to achieve their health and wellness goals</div>
-                    <div className="text-gray-800">through personalized guidance and support.</div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="text-gray-400">+++</div>
-                    <div className="text-gray-400">+++</div>
-                    <div className="text-gray-400">+++</div>
-                    <div className="h-6"></div>
-                    <div className="text-gray-400">===</div>
-                    <div className="h-6"></div>
-                    <div className="text-gray-400">/</div>
-                    <div className="text-gray-400">/</div>
-                    <div className="text-gray-400">/</div>
-                    <div className="h-6"></div>
-
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
                     <button 
                       onClick={() => {
                         setSidebarOpen(true)
@@ -699,268 +700,165 @@ export default function HomePage() {
                       <span>Learn more</span>
                       <span className="text-sm text-gray-400 ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">(opens sidebar)</span>
                     </button>
-                    <div className="h-6"></div>
-                    <div className="text-gray-400">***</div>
-                    <div className="text-gray-400">***</div>
-                    <div className="text-gray-400">***</div>
-                    <div className="h-6"></div>
-                    <div className="text-gray-400">===</div>
                   </div>
-                </div>
-              </div>
-            </section>
 
-            {/* Section 3: Services */}
-            <section className="h-screen flex p-6 pt-8 snap-start">
-              <div className="flex w-full">
-                {/* Line Numbers */}
-                <ContinuousLineNumbers startLine={81} count={40} scrollOffset={scrollY} />
-                
-                {/* Services Content */}
-                <div className="flex-1">
-                  <div className="space-y-1 pt-8">
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="text-8xl font-light text-gray-800 leading-none">
+                  {/* Services Section */}
+                  <div className="space-y-6">
+                    <h2 className="text-3xl md:text-6xl font-light text-gray-800 leading-tight">
                       Our Services
-                    </div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div> 
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="text-xl font-light text-gray-800">SERVICES</div>
-                    <div className="text-gray-400">========</div>
-                    <div className="h-6"></div>
-                    <div className="text-gray-400">/ SERVICE / DESCRIPTION / PRICE /</div>
-                    <div className="h-6"></div>
-                    <div className="group relative">
-                      <div 
-                        className="text-4xl font-light text-gray-800 hover:text-gray-900 transition-colors cursor-pointer flex items-center space-x-2"
-                        onClick={() => addToCart({ name: "Personal Training", price: "$75/session", description: "One-on-one or group fitness coaching" })}
-                      >
-                        <span>→ Personal Training</span>
-                        <span className="text-2xl group-hover:translate-x-1 transition-transform duration-200">→</span>
-                      </div>
-                      <div className="overflow-hidden max-h-0 transition-all duration-500 ease-out group-hover:max-h-20">
-                        <div className="text-lg text-gray-600 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out">
-                          — One-on-one or group fitness coaching • $75/session
+                    </h2>
+                    <div className="space-y-4">
+                      <div className="text-xl font-light text-gray-800">SERVICES</div>
+                      <div className="text-gray-400">========</div>
+                      <div className="text-gray-400">/ SERVICE / DESCRIPTION / PRICE /</div>
+                      <div className="group relative">
+                        <div 
+                          className="text-2xl md:text-4xl font-light text-gray-800 hover:text-gray-900 transition-colors cursor-pointer flex items-center space-x-2"
+                          onClick={() => addToCart({ name: "Personal Training", price: "$75/session", description: "One-on-one or group fitness coaching" })}
+                        >
+                          <span>→ Personal Training</span>
+                          <span className="text-2xl group-hover:translate-x-1 transition-transform duration-200">→</span>
                         </div>
-                      </div>
-                    </div>
-                    
-                    <div className="group relative">
-                      <div 
-                        className="text-4xl font-light text-gray-800 hover:text-gray-900 transition-colors cursor-pointer flex items-center space-x-2"
-                        onClick={() => addToCart({ name: "Wellness Coaching", price: "$60/session", description: "Lifestyle, nutrition, and health guidance" })}
-                      >
-                        <span>→ Wellness Coaching</span>
-                        <span className="text-2xl group-hover:translate-x-1 transition-transform duration-200">→</span>
-                      </div>
-                      <div className="overflow-hidden max-h-0 transition-all duration-500 ease-out group-hover:max-h-20">
-                        <div className="text-lg text-gray-600 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out">
-                          — Lifestyle, nutrition, and health guidance • $60/session
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="group relative">
-                      <div className="text-4xl font-light text-gray-800 hover:text-gray-900 transition-colors cursor-pointer flex items-center space-x-2">
-                        <span>→ Meal Prep & Delivery</span>
-                        <span className="text-2xl group-hover:translate-x-1 transition-transform duration-200">→</span>
-                      </div>
-                      <div className="overflow-hidden max-h-0 transition-all duration-500 ease-out group-hover:max-h-20">
-                        <div className="text-lg text-gray-600 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out">
-                          — Healthy, ready-to-eat meals • $15/meal
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="group relative">
-                      <div className="text-4xl font-light text-gray-800 hover:text-gray-900 transition-colors cursor-pointer flex items-center space-x-2">
-                        <span>→ Merchandise</span>
-                        <span className="text-2xl group-hover:translate-x-1 transition-transform duration-200">→</span>
-                      </div>
-                      <div className="overflow-hidden max-h-0 transition-all duration-500 ease-out group-hover:max-h-20">
-                        <div className="text-lg text-gray-600 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out">
-                          — Apparel, gear, and wellness products • Various prices
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="group relative">
-                      <div className="text-4xl font-light text-gray-800 hover:text-gray-900 transition-colors cursor-pointer flex items-center space-x-2">
-                        <span>→ Community & Blog</span>
-                        <span className="text-2xl group-hover:translate-x-1 transition-transform duration-200">→</span>
-                      </div>
-                      <div className="overflow-hidden max-h-0 transition-all duration-500 ease-out group-hover:max-h-20">
-                        <div className="text-lg text-gray-600 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out">
-                          — Tips, stories, and inspiration • Free
-                        </div>
-                      </div>
-                    </div>
-                    latest insights
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="text-gray-400">+++</div>
-                    <div className="text-gray-400">+++</div>
-                    <div className="text-gray-400">+++</div>
-                    <div className="h-6"></div>
-                    <div className="text-gray-400">===</div>
-                    <div className="h-6"></div>
-                    <div className="text-gray-400">/</div>
-                    <div className="text-gray-400">/</div>
-                    <div className="text-gray-400">/</div>
-                    <div className="h-6"></div>
-                    <button 
-                      onClick={() => {
-                        setSidebarOpen(true)
-                        setActiveTab("profile")
-                      }}
-                      className="text-xl font-light text-gray-800 hover:text-gray-600 transition-colors flex items-center space-x-2 group"
-                    >
-                      <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
-                      <span>Learn more</span>
-                      <span className="text-sm text-gray-400 ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">(opens sidebar)</span>
-                    </button>
-                    <div className="h-6"></div>
-                    <div className="text-gray-400">***</div>
-                    <div className="text-gray-400">***</div>
-                    <div className="text-gray-400">***</div>
-                    <div className="h-6"></div>
-                    <div className="text-gray-400">===</div>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* Section 4: Blog */}
-            <section className="h-screen flex p-6 pt-8 snap-start">
-              <div className="flex w-full">
-                {/* Line Numbers */}
-                <ContinuousLineNumbers startLine={121} count={40} scrollOffset={scrollY} />
-                
-                {/* Blog Content */}
-                <div className="flex-1">
-                  <div className="space-y-1 pt-20">
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="text-8xl font-light text-gray-800 leading-none">
-                      Latest Insights
-                    </div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="text-xl font-light text-gray-800">BLOG</div>
-                    <div className="text-gray-400">========</div>
-                    <div className="h-6"></div>
-                    <div className="text-gray-400">/ TITLE / TYPE / DATE /</div>
-                    <div className="h-6"></div>
-                    {loadingBlog ? (
-                      <div className="text-gray-600">Loading blog posts...</div>
-                    ) : blogPosts.length > 0 ? (
-                      blogPosts.map((post) => (
-                        <div key={post.id} className="group relative">
-                          <div className="text-4xl font-light text-gray-800 hover:text-gray-900 transition-colors cursor-pointer flex items-center space-x-2">
-                            <span>→ {post.title}</span>
-                            <span className="text-2xl group-hover:translate-x-1 transition-transform duration-200">→</span>
+                        <div className="overflow-hidden max-h-0 transition-all duration-500 ease-out group-hover:max-h-20">
+                          <div className="text-lg text-gray-600 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out">
+                            — One-on-one or group fitness coaching • $75/session
                           </div>
-                          <div className="overflow-hidden max-h-0 transition-all duration-500 ease-out group-hover:max-h-20">
-                            <div className="text-lg text-gray-600 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out">
-                              — {post.type} • {post.created_at} • {post.content.substring(0, 60)}...
+                        </div>
+                      </div>
+                      
+                      <div className="group relative">
+                        <div 
+                          className="text-2xl md:text-4xl font-light text-gray-800 hover:text-gray-900 transition-colors cursor-pointer flex items-center space-x-2"
+                          onClick={() => addToCart({ name: "Wellness Coaching", price: "$60/session", description: "Lifestyle, nutrition, and health guidance" })}
+                        >
+                          <span>→ Wellness Coaching</span>
+                          <span className="text-2xl group-hover:translate-x-1 transition-transform duration-200">→</span>
+                        </div>
+                        <div className="overflow-hidden max-h-0 transition-all duration-500 ease-out group-hover:max-h-20">
+                          <div className="text-lg text-gray-600 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out">
+                            — Lifestyle, nutrition, and health guidance • $60/session
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="group relative">
+                        <div className="text-2xl md:text-4xl font-light text-gray-800 hover:text-gray-900 transition-colors cursor-pointer flex items-center space-x-2">
+                          <span>→ Meal Prep & Delivery</span>
+                          <span className="text-2xl group-hover:translate-x-1 transition-transform duration-200">→</span>
+                        </div>
+                        <div className="overflow-hidden max-h-0 transition-all duration-500 ease-out group-hover:max-h-20">
+                          <div className="text-lg text-gray-600 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out">
+                            — Healthy, ready-to-eat meals • $15/meal
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="group relative">
+                        <div className="text-2xl md:text-4xl font-light text-gray-800 hover:text-gray-900 transition-colors cursor-pointer flex items-center space-x-2">
+                          <span>→ Merchandise</span>
+                          <span className="text-2xl group-hover:translate-x-1 transition-transform duration-200">→</span>
+                        </div>
+                        <div className="overflow-hidden max-h-0 transition-all duration-500 ease-out group-hover:max-h-20">
+                          <div className="text-lg text-gray-600 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out">
+                            — Apparel, gear, and wellness products • Various prices
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="group relative">
+                        <div className="text-2xl md:text-4xl font-light text-gray-800 hover:text-gray-900 transition-colors cursor-pointer flex items-center space-x-2">
+                          <span>→ Community & Blog</span>
+                          <span className="text-2xl group-hover:translate-x-1 transition-transform duration-200">→</span>
+                        </div>
+                        <div className="overflow-hidden max-h-0 transition-all duration-500 ease-out group-hover:max-h-20">
+                          <div className="text-lg text-gray-600 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out">
+                            — Tips, stories, and inspiration • Free
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-gray-400">+++</div>
+                      <div className="text-gray-400">+++</div>
+                      <div className="text-gray-400">+++</div>
+                      <div className="text-gray-400">===</div>
+                      <div className="text-gray-400">/</div>
+                      <div className="text-gray-400">/</div>
+                      <div className="text-gray-400">***</div>
+                      <div className="text-gray-400">***</div>
+                      <div className="text-gray-400">***</div>
+                      <div className="text-gray-400">===</div>
+                    </div>
+                  </div>
+
+                  {/* Blog Section */}
+                  <div className="space-y-6">
+                    <h2 className="text-3xl md:text-6xl font-light text-gray-800 leading-tight">
+                      Latest Insights
+                    </h2>
+                    <div className="space-y-4">
+                      <div className="text-xl font-light text-gray-800">BLOG</div>
+                      <div className="text-gray-400">========</div>
+                      <div className="text-gray-400">/ TITLE / TYPE / DATE /</div>
+                      {loadingBlog ? (
+                        <div className="text-gray-600">Loading blog posts...</div>
+                      ) : blogPosts.length > 0 ? (
+                        blogPosts.map((post) => (
+                          <div key={post.id} className="group relative">
+                            <div className="text-2xl md:text-4xl font-light text-gray-800 hover:text-gray-900 transition-colors cursor-pointer flex items-center space-x-2">
+                              <span>→ {post.title}</span>
+                              <span className="text-2xl group-hover:translate-x-1 transition-transform duration-200">→</span>
+                            </div>
+                            <div className="overflow-hidden max-h-0 transition-all duration-500 ease-out group-hover:max-h-20">
+                              <div className="text-lg text-gray-600 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out">
+                                — {post.type} • {post.created_at} • {post.content.substring(0, 60)}...
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-gray-600">No blog posts available</div>
-                    )}
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="text-gray-400">***</div>
-                    <div className="text-gray-400">***</div>
-                    <div className="text-gray-400">***</div>
-                    <div className="h-6"></div>
-                    <div className="text-gray-400">===</div>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* Section 5: Contact */}
-            <section className="h-screen flex p-6 pt-8 snap-start">
-              <div className="flex w-full">
-                {/* Line Numbers */}
-                <ContinuousLineNumbers startLine={161} count={40} scrollOffset={scrollY} />
-                
-                {/* Contact Content */}
-                <div className="flex-1">
-                  <div className="space-y-1 pt-20">
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="text-8xl font-light text-gray-800 leading-none">
-                      Get Started
+                        ))
+                      ) : (
+                        <div className="text-gray-600">No blog posts available</div>
+                      )}
+                      <div className="text-gray-400">***</div>
+                      <div className="text-gray-400">***</div>
+                      <div className="text-gray-400">***</div>
+                      <div className="text-gray-400">===</div>
                     </div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="text-xl font-light text-gray-800">CONTACT</div>
-                    <div className="text-gray-400">========</div>
-                    <div className="h-6"></div>
-                    <div className="text-gray-400">/ READY / TO / START /</div>
-                    <div className="h-6"></div>
-                    <div className="text-gray-800">→ Ready to start your fitness journey?</div>
-                    <div className="text-gray-800">Book a session with one of our certified trainers</div>
-                    <div className="text-gray-800">and take the first step towards your goals.</div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="text-gray-400">+++</div>
-                    <div className="text-gray-400">+++</div>
-                    <div className="text-gray-400">+++</div>
-                    <div className="h-6"></div>
-                    <div className="text-gray-400">===</div>
-                    <div className="h-6"></div>
-                    <div className="text-gray-400">/</div>
-                    <div className="text-gray-400">/</div>
-                    <div className="text-gray-400">/</div>
-                    <div className="h-6"></div>
-                    <div className="text-gray-800">→ Contact us today to schedule your</div>
-                    <div className="text-gray-800">free consultation and assessment.</div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
+                  </div>
+
+                  {/* Contact Section */}
+                  <div className="space-y-6">
+                    <h2 className="text-3xl md:text-6xl font-light text-gray-800 leading-tight">
+                      Get Started
+                    </h2>
+                    <div className="space-y-4">
+                      <div className="text-xl font-light text-gray-800">CONTACT</div>
+                      <div className="text-gray-400">========</div>
+                      <div className="text-gray-400">/ READY / TO / START /</div>
+                      <div className="text-gray-800">→ Ready to start your fitness journey?</div>
+                      <div className="text-gray-800">Book a session with one of our certified trainers</div>
+                      <div className="text-gray-800">and take the first step towards your goals.</div>
+                      <div className="text-gray-400">+++</div>
+                      <div className="text-gray-400">+++</div>
+                      <div className="text-gray-400">+++</div>
+                      <div className="text-gray-400">===</div>
+                      <div className="text-gray-400">/</div>
+                      <div className="text-gray-400">/</div>
+                      <div className="text-gray-400">/</div>
+                      <div className="text-gray-800">→ Contact us today to schedule your</div>
+                      <div className="text-gray-800">free consultation and assessment.</div>
+                      <div className="text-gray-400">***</div>
+                      <div className="text-gray-400">***</div>
+                      <div className="text-gray-400">***</div>
+                      <div className="text-gray-400">===</div>
+                      <div className="text-gray-400">/</div>
+                      <div className="text-gray-400">/</div>
+                      <div className="text-gray-400">+++</div>
+                      <div className="text-gray-400">+++</div>
+                      <div className="text-gray-400">+++</div>
+                      <div className="text-gray-400">/</div>
+                      <div className="text-gray-400">/</div>
+                      <div className="text-gray-400">/</div>
+                      <div className="text-gray-400">===</div>
+                    </div>
                     <button 
                       onClick={() => {
                         setSidebarOpen(true)
@@ -972,30 +870,10 @@ export default function HomePage() {
                       <span>Contact us</span>
                       <span className="text-sm text-gray-400 ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">(opens sidebar)</span>
                     </button>
-                    <div className="h-6"></div>
-                    <div className="h-6"></div>
-                    <div className="text-gray-400">***</div>
-                    <div className="text-gray-400">***</div>
-                    <div className="text-gray-400">***</div>
-                    <div className="h-6"></div>
-                    <div className="text-gray-400">===</div>
-                    <div className="h-6"></div>
-                    <div className="text-gray-400">/</div>
-                    <div className="text-gray-400">/</div>
-                    <div className="text-gray-400">/</div>
-                    <div className="text-gray-400">+++</div>
-                    <div className="text-gray-400">+++</div>
-                    <div className="text-gray-400">+++</div>
-                    <div className="text-gray-400">/</div>
-                    <div className="text-gray-400">/</div>
-                    <div className="text-gray-400">/</div>
-                    <div className="h-6"></div>
-                    <div className="text-gray-400">===</div>
                   </div>
                 </div>
               </div>
-            </section>
-          </div>
+            </div>
             )}
         </main>
       </div>
